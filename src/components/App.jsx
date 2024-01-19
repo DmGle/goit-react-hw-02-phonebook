@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm';
 import ContactList from './ContactList';
 import Filter from './Filter';
 
-import './app.css'
+import './app.css';
 
-const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      contacts: [],
+      filter: '',
+      name: '',
+      number: '',
+    };
+  }
 
-  const handleSubmit = e => {
+  handleSubmit = e => {
     e.preventDefault();
+    const { contacts, name, number } = this.state;
+
     if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
       alert(`${name} is already in contacts!`);
       return;
@@ -25,47 +32,51 @@ const App = () => {
       number,
     };
 
-    setContacts(prevContacts => [...prevContacts, newContact]);
-    setName('');
-    setNumber('');
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+      name: '',
+      number: '',
+    }));
   };
 
-  const handleDelete = id => {
-    setContacts(prevContacts => prevContacts.filter(contact => contact.id !== id));
+  handleDelete = id => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== id),
+    }));
   };
 
-  const handleFilterChange = e => {
-    setFilter(e.target.value);
+  handleFilterChange = e => {
+    this.setState({ filter: e.target.value });
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
-
-  const handleFormChange = e => {
+  handleFormChange = e => {
     const { name, value } = e.target;
-    if (name === 'name') {
-      setName(value);
-    } else if (name === 'number') {
-      setNumber(value);
-    }
+    this.setState({ [name]: value });
   };
 
-  return (
-    <div className='container'>
-      <h1>Phonebook</h1>
-      <ContactForm
-        onSubmit={handleSubmit}
-        onChange={handleFormChange}
-        name={name}
-        number={number}
-      />
+  render() {
+    const { contacts, filter, name, number } = this.state;
 
-      <h2>Contacts</h2>
-      <Filter value={filter} onChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} onDelete={handleDelete} />
-    </div>
-  );
-};
+    const filteredContacts = contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    return (
+      <div className='container'>
+        <h1>Phonebook</h1>
+        <ContactForm
+          onSubmit={this.handleSubmit}
+          onChange={this.handleFormChange}
+          name={name}
+          number={number}
+        />
+
+        <h2>Contacts</h2>
+        <Filter value={filter} onChange={this.handleFilterChange} />
+        <ContactList contacts={filteredContacts} onDelete={this.handleDelete} />
+      </div>
+    );
+  }
+}
 
 export default App;
