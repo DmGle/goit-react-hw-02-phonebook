@@ -17,19 +17,17 @@ class App extends Component {
     };
   }
 
-  handleSubmit = e => {
-    e.preventDefault();
-    const { contacts, name, number } = this.state;
+  handleSubmit = contact => {
+    const { contacts, name } = this.state;
 
-    if (contacts.some(contact => contact.name.toLowerCase() === name.toLowerCase())) {
+    if (contacts.some(existingContact => existingContact.name.toLowerCase() === name.toLowerCase())) {
       alert(`${name} is already in contacts!`);
       return;
     }
 
     const newContact = {
       id: nanoid(),
-      name,
-      number,
+      ...contact,
     };
 
     this.setState(prevState => ({
